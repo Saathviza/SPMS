@@ -1,59 +1,33 @@
-console.log("AUTH FILE PATH:", __filename);
-console.log("🔥 AUTH ROUTES LOADED");
-
 const express = require("express");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const pool = require("../config/db");
+const AuthController = require("../controllers/auth.controller");
 
 const router = express.Router();
 
-
+/**
+ * TEST ROUTE
+ */
 router.get("/test", (req, res) => {
   res.send("AUTH ROUTE WORKS");
 });
 
+/**
+ * LOGIN ROUTE
+ */
+router.post("/login", AuthController.login);
 
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+/**
+ * REGISTRATION ROUTE
+ */
+router.post("/register", AuthController.register);
 
-    // Debugging logs
-    console.log("LOGIN REQUEST RECEIVED: ", email);
-
-    const [rows] = await pool.query(
-      "SELECT * FROM users WHERE email = ? AND is_active = 1",
-      [email]
-    );
-
-    if (rows.length === 0) {
-      console.log("User not found or inactive");
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const user = rows[0];
-    const match = await bcrypt.compare(password, user.password_hash);
-
-    if (!match) {
-      console.log("Password mismatch");
-      return res.status(401).json({ message: "Invalid email or password" });
-    }
-
-    const token = jwt.sign(
-      { user_id: user.user_id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "2h" }
-    );
-
-    console.log("Login successful: ", user.email);
-
-    res.json({ token, role: user.role });
-  } catch (err) {
-    console.error("Server error:", err);  // Log the error
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
+/**
+ * PASSWORD RECOVERY ROUTE
+ */
+router.post("/password-recovery", AuthController.requestPasswordReset);
 
 module.exports = router;
+
+
+
+
 

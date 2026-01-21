@@ -1,0 +1,13 @@
+{
+    "name": "scout-pms",
+    "version": "1.0.0",
+    "description": "Sri Lankan Scout Performance Management System",
+    "scripts": {
+        "start": "concurrently \"npm run server --prefix backend\" \"npm start --prefix frontend\"",
+        "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
+        "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}
