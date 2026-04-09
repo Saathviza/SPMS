@@ -5,19 +5,14 @@ const role = require("../middleware/role");
 
 const router = express.Router();
 
-// Get scouts in leader's group
-router.get("/scouts/:leader_id", auth, role(['Scout Leader']), LeaderController.getScouts);
+router.use(auth, role(["leader"]));
 
-// Get pending activities
-router.get("/pending-activities/:leader_id", auth, role(['Scout Leader']), LeaderController.getPendingActivities);
-
-// Approve activity
-router.post("/approve-activity", auth, role(['Scout Leader']), LeaderController.approveActivity);
-
-// Reject activity
-router.post("/reject-activity", auth, role(['Scout Leader']), LeaderController.rejectActivity);
-
-// Get reports
-router.get("/reports/:leader_id", auth, role(['Scout Leader']), LeaderController.getReports);
+router.get("/scouts", LeaderController.getScouts);
+router.get("/pending-activities", LeaderController.getPendingActivities);
+router.post("/approve-activity", LeaderController.approveActivity);
+router.post("/reject-activity", LeaderController.rejectActivity);
+router.get("/reports", LeaderController.getReports);
+router.get("/reports/file/:type", LeaderController.getReportFile);
 
 module.exports = router;
+

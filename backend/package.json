@@ -6,15 +6,24 @@
   "scripts": {
     "server": "node app.js",
     "start": "node app.js",
-    "dev": "node app.js"
+    "dev": "nodemon app.js",
+    "migrate": "node BULK_SCALE_MIGRATION.js"
   },
   "dependencies": {
+    "axios": "^1.13.6",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.22.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "mysql2": "^3.9.7"
+    "mysql2": "^3.9.7",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.13",
+    "socket.io": "^4.8.3",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

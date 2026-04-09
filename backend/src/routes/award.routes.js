@@ -1,16 +1,23 @@
 const express = require("express");
 const AwardController = require("../controllers/award.controller");
 const auth = require("../middleware/auth");
+const role = require("../middleware/role");
 
 const router = express.Router();
 
-// Check eligibility
-router.get("/eligibility/:scout_id", auth, AwardController.checkEligibility);
+router.get(
+  "/eligibility/:scout_id",
+  auth,
+  role(["scout", "leader"]),
+  AwardController.checkEligibility
+);
 
-// Get award progress
-router.get("/progress/:scout_id", auth, AwardController.getAwardProgress);
-
-// Nominate for award
-router.post("/nominate", auth, AwardController.nominateForAward);
+router.get(
+  "/progress/:scout_id",
+  auth,
+  role(["scout", "leader"]),
+  AwardController.getAwardProgress
+);
 
 module.exports = router;
+

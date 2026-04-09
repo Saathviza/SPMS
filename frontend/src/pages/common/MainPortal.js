@@ -41,37 +41,35 @@ export default function MainPortal() {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black font-sans">
+    <div className="min-h-screen relative overflow-hidden bg-[#F4F9F1] font-sans">
       {/* Background Image with Overlay */}
       <div
-        className="absolute inset-0 z-0 opacity-40 transform scale-105"
+        className="absolute inset-0 z-0 transform transition-transform duration-1000 translate-y-16 scale-110 md:scale-100"
         style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1534330207526-9e4e3b7d11f2?q=80&w=2000")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'blur(4px)',
+          backgroundImage: 'url("/images/portal-bg.png")',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'bottom center',
         }}
       />
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-t from-white/90 via-transparent to-white/40" />
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 bg-white/20 backdrop-blur-[2px]">
 
         {/* Hero Section */}
         <div className="text-center mb-16 max-w-3xl animate-fade-in-up">
-          <div className="inline-block p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-6">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/2317/2317963.png"
-              alt="Logo"
-              className="w-16 h-16 drop-shadow-lg"
-            />
+          <div className="inline-block p-1.5 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-600 shadow-2xl mb-6 animate-glow">
+            <div className="rounded-full bg-white p-0.5 overflow-hidden">
+              <img src="/favicon.png" alt="Scout Logo" className="w-24 h-24 object-contain" />
+            </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-200 to-teal-400 mb-6 drop-shadow-sm">
-            Sri Lanka Scout SPMS
+          <h1 className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-700 via-emerald-800 to-teal-900 mb-6 drop-shadow-sm">
+            Sri Lanka Scout PMS
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed font-light mb-6">
-            Performance Management System. <br />
-            <span className="text-white/80">Empowering the next generation of leaders.</span>
+          <p className="text-lg md:text-xl text-green-950 leading-relaxed font-bold mb-6">
+            Scout's Performance Management System. <br />
+            <span className="text-green-800 font-medium opacity-90">Empowering the next generation of leaders.</span>
           </p>
           <div className="flex gap-4 justify-center text-sm">
             <button
@@ -82,7 +80,7 @@ export default function MainPortal() {
             </button>
             <button
               onClick={() => navigate('/password-recovery')}
-              className="px-6 py-2 bg-white/10 text-white font-semibold rounded-lg hover:bg-white/20 transition-all duration-300 backdrop-blur-sm"
+              className="px-6 py-2 bg-green-900/10 text-green-900 font-bold rounded-lg hover:bg-green-900/20 transition-all duration-300 backdrop-blur-sm"
             >
               Forgot Password?
             </button>
@@ -95,7 +93,7 @@ export default function MainPortal() {
             <Card
               key={r.title}
               onClick={() => navigate(r.path)}
-              className={`group relative overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md cursor-pointer transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl ${r.hoverBorder}`}
+              className={`group relative overflow-hidden border border-green-800/20 bg-white/60 backdrop-blur-md cursor-pointer transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl ${r.hoverBorder}`}
             >
               {/* Hover Gradient Effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -104,16 +102,16 @@ export default function MainPortal() {
                 <div className={`w-14 h-14 ${r.color} rounded-2xl flex items-center justify-center mb-4 text-2xl shadow-lg transition-transform group-hover:scale-110`}>
                   <r.icon className="w-7 h-7" />
                 </div>
-                <CardTitle className="text-xl text-white font-bold tracking-tight">
+                <CardTitle className="text-xl text-green-950 font-black tracking-tight">
                   {r.title}
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="relative">
-                <p className="text-sm text-gray-400 mb-6 min-h-[40px]">
+                <p className="text-sm text-green-900 font-semibold mb-6 min-h-[40px] leading-snug">
                   {r.desc}
                 </p>
-                <div className="flex items-center text-sm font-medium text-white/70 group-hover:text-white transition-colors">
+                <div className="flex items-center text-sm font-black text-green-800 group-hover:text-green-950 transition-colors uppercase tracking-widest">
                   Login Access
                   <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -124,7 +122,7 @@ export default function MainPortal() {
 
         {/* Footer */}
         <div className="mt-16 text-center text-gray-500 text-sm">
-          <p>&copy; 2025 Sri Lanka Scout Association. All rights reserved.</p>
+          <p>&copy; 2026 Sri Lanka Scout Association. All rights reserved.</p>
         </div>
       </div>
     </div>

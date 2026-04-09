@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		}
+	],
+	"settings": {
+		"sqltools.connections": [
+			{
+				"mysqlOptions": {
+					"authProtocol": "xprotocol",
+					"enableSsl": "Disabled"
+				},
+				"ssh": "Disabled",
+				"previewLimit": 50,
+				"server": "localhost",
+				"port": 33060,
+				"driver": "MySQL",
+				"name": "localSPMS",
+				"database": "scout_performance_management_system",
+				"username": "root",
+				"connectionTimeout": 30,
+				"askForPassword": true
+			}
+		]
+	}
+}

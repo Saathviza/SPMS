@@ -1,12 +1,12 @@
-const pool = require('../config/db');
+const pool = require('../config/db.config');
 
 const Scout = {
-    // Create scout profile (linked to user)
+    // Create scout profile
     createProfile: async (scoutData) => {
-        const { scout_id, date_of_birth, group_id, rank_level, profile_image_url, joined_date } = scoutData;
+        const { id, name, age, group_id } = scoutData;
         const [result] = await pool.query(
-            "INSERT INTO scouts (scout_id, date_of_birth, group_id, rank_level, profile_image_url, joined_date) VALUES (?, ?, ?, ?, ?, ?)",
-            [scout_id, date_of_birth, group_id, rank_level, profile_image_url, joined_date]
+            "INSERT INTO scouts (id, name, age, group_id) VALUES (?, ?, ?, ?)",
+            [id, name, age, group_id]
         );
         return result;
     },
@@ -14,11 +14,11 @@ const Scout = {
     // Get full scout details including user info
     getDetails: async (scoutId) => {
         const query = `
-      SELECT u.user_id, u.name, u.email, s.date_of_birth, s.rank_level, s.joined_date, sg.name as group_name
+      SELECT u.id, s.name, u.email, s.age, sg.name as group_name
       FROM users u
-      JOIN scouts s ON u.user_id = s.scout_id
-      LEFT JOIN scout_groups sg ON s.group_id = sg.group_id
-      WHERE u.user_id = ?
+      JOIN scouts s ON u.id = s.id
+      LEFT JOIN scout_groups sg ON s.group_id = sg.id
+      WHERE u.id = ?
     `;
         const [rows] = await pool.query(query, [scoutId]);
         return rows[0];
@@ -27,10 +27,10 @@ const Scout = {
     // Get all scouts (for leaders/admin)
     getAll: async () => {
         const query = `
-      SELECT u.user_id, u.name, u.email, s.rank_level, sg.name as group_name
+      SELECT u.id, s.name, u.email, s.age, sg.name as group_name
       FROM users u
-      JOIN scouts s ON u.user_id = s.scout_id
-      LEFT JOIN scout_groups sg ON s.group_id = sg.group_id
+      JOIN scouts s ON u.id = s.id
+      LEFT JOIN scout_groups sg ON s.group_id = sg.id
     `;
         const [rows] = await pool.query(query);
         return rows;
@@ -38,3 +38,4 @@ const Scout = {
 };
 
 module.exports = Scout;
+

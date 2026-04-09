@@ -1,4 +1,4 @@
-const pool = require('../config/db');
+const pool = require('../config/db.config');
 
 const User = {
     // Find user by email
@@ -9,19 +9,20 @@ const User = {
 
     // Create new user
     create: async (userData) => {
-        const { name, email, password_hash, role } = userData;
+        const { email, password, role } = userData;
         const [result] = await pool.query(
-            "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
-            [name, email, password_hash, role]
+            "INSERT INTO users (email, password, role) VALUES (?, ?, ?)",
+            [email, password, role]
         );
         return result.insertId;
     },
 
     // Find user by ID
     findById: async (id) => {
-        const [rows] = await pool.query("SELECT user_id, name, email, role FROM users WHERE user_id = ?", [id]);
+        const [rows] = await pool.query("SELECT id, email, role FROM users WHERE id = ?", [id]);
         return rows[0];
     }
 };
 
 module.exports = User;
+

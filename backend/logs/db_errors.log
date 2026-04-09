@@ -1,0 +1,81 @@
+[2026-01-22T10:48:43.963Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T10:48:48.986Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T10:48:54.010Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T10:48:59.030Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T10:49:04.057Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T10:49:09.068Z] ❌ DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-01-22T11:04:25.621Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:30.638Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:35.661Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:40.683Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:45.693Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:50.722Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:51.657Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:04:56.669Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-22T11:05:01.693Z] ❌ DATABASE CONNECTION FAILED: 
+[2026-01-26T13:35:02.934Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-01-26T13:35:07.969Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-01-26T13:35:13.011Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-01-26T13:35:18.063Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-01-26T13:35:23.089Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-01-26T13:35:28.112Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:03:37.047Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:03:42.069Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:03:47.094Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:03:52.103Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:03:57.120Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T06:04:02.140Z] DATABASE CONNECTION FAILED: connect ECONNREFUSED 127.0.0.1:3307
+[2026-02-26T08:06:42.394Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:06:47.429Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:06:52.463Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:06:57.485Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:07:02.519Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:07:07.551Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:11:36.871Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:11:41.921Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:11:46.960Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:11:51.995Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:11:57.025Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-02-26T08:12:02.057Z] DATABASE CONNECTION FAILED: Access denied for user 'root'@'localhost' (using password: YES)
+[2026-03-06T11:29:17.561Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:22.613Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:27.660Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:32.692Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:37.720Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:42.750Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:29:59.039Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:04.087Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:09.147Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:14.180Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:19.204Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:24.216Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:48.354Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:53.381Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:30:58.397Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:03.416Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:08.434Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:13.446Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:19.958Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:24.981Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:30.007Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:35.040Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:40.063Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:31:45.074Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:04.102Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:09.230Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:14.267Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:19.294Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:24.307Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:29.329Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:39.653Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:44.677Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:49.711Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:54.733Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:32:59.758Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:04.831Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:07.062Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:12.076Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:17.097Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:22.119Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:27.136Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'
+[2026-03-06T11:33:32.184Z] DATABASE CONNECTION FAILED: Unknown database 'scout_performance_management_system'

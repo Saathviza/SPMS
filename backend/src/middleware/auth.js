@@ -1,19 +1,31 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = function (req, res, next) {
-  const header = req.headers.authorization;
+// MUST MATCH auth.controller.js
+const JWT_SECRET = process.env.JWT_SECRET || "scout-pms-secret";
 
-  if (!header) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  const token = header.split(" ")[1];
-
+module.exports = function authenticate(req, res, next) {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Invalid token format" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // attach user info
     req.user = decoded;
+
     next();
   } catch (err) {
+    console.error("JWT ERROR:", err.message);
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+

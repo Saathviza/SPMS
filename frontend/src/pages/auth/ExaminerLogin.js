@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription
+} from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -12,29 +18,57 @@ export default function ExaminerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) return;
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+
     setError('');
+    setLoading(true);
 
     try {
-      const data = await authService.login(email, password);
+      // 🔑 IMPORTANT: send role explicitly
+      const data = await authService.login(email, password, 'examiner');
+
+      // 🛑 Safety check
+      if (data.role !== 'examiner') {
+        setError('Access denied. This account is not a Badge Examiner.');
+        return;
+      }
+
+      // ✅ Store auth data
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // ✅ Navigate to examiner dashboard
       navigate('/examiner/dashboard');
     } catch (err) {
-      setError('Invalid credentials');
+      console.error('Examiner login error:', err);
+
+      if (err.response) {
+        setError(err.response.data?.message || 'Invalid credentials');
+      } else if (err.request) {
+        setError('Backend server not reachable');
+      } else {
+        setError('Unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Badge evaluation scene background */}
+      {/* Background */}
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=2000")',
+          backgroundImage:
+            'url("https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?q=80&w=2000")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -42,7 +76,11 @@ export default function ExaminerLogin() {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-amber-900/70 via-gray-900/80 to-black/90" />
 
       <div className="relative z-10 w-full max-w-md px-6">
-        <Button onClick={() => navigate('/')} variant="ghost" className="text-white mb-4 hover:bg-white/10">
+        <Button
+          onClick={() => navigate('/')}
+          variant="ghost"
+          className="text-white mb-4 hover:bg-white/10"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Portal
         </Button>
@@ -50,29 +88,52 @@ export default function ExaminerLogin() {
         <Card className="bg-white/95 backdrop-blur-md shadow-2xl">
           <CardHeader className="text-center">
             <Award className="mx-auto text-[#E6B800] mb-2" size={48} />
-            <CardTitle className="text-2xl text-[#0B5D1E]">Badge Examiner Login</CardTitle>
-            <CardDescription>Evaluate and recognize excellence</CardDescription>
+            <CardTitle className="text-2xl text-[#0B5D1E]">
+              Badge Examiner Login
+            </CardTitle>
+            <CardDescription>
+              Evaluate and recognize excellence
+            </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {error && <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">{error}</div>}
+            {error && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                {error}
+              </div>
+            )}
 
             <div>
               <Label>Email</Label>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
 
             <div>
               <Label>Password</Label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
 
-            <Button onClick={handleLogin} className="w-full bg-[#0B5D1E] text-white hover:bg-[#084516]">
-              Login as Examiner
+            <Button
+              onClick={handleLogin}
+              disabled={loading}
+              className="w-full bg-[#0B5D1E] text-white hover:bg-[#084516]"
+            >
+              {loading ? 'Logging in...' : 'Login as Examiner'}
             </Button>
 
             <div className="text-center text-sm">
-              <button onClick={() => navigate('/password-recovery')} className="underline text-gray-600 hover:text-[#0B5D1E]">
+              <button
+                onClick={() => navigate('/password-recovery')}
+                className="underline text-gray-600 hover:text-[#0B5D1E]"
+              >
                 Forgot Password?
               </button>
             </div>
@@ -82,3 +143,4 @@ export default function ExaminerLogin() {
     </div>
   );
 }
+

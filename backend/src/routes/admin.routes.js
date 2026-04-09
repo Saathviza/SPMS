@@ -5,25 +5,19 @@ const role = require("../middleware/role");
 
 const router = express.Router();
 
-// Get system stats
-router.get("/stats", auth, role(['Admin']), AdminController.getStats);
+router.use(auth, role(["admin"]));
 
-// Get all scouts
-router.get("/scouts", auth, role(['Admin']), AdminController.getAllScouts);
-
-// Add scout leader
-router.post("/add-leader", auth, role(['Admin']), AdminController.addLeader);
-
-// Check eligibility
-router.get("/eligibility/:scout_id", auth, role(['Admin']), AdminController.checkEligibility);
-
-// Manage activities
-router.post("/manage-activities", auth, role(['Admin']), AdminController.manageActivity);
-
-// Manage badges
-router.post("/manage-badges", auth, role(['Admin']), AdminController.manageBadge);
-
-// Approve scout registration
-router.post("/approve-scout", auth, role(['Admin']), AdminController.approveScout);
+router.get("/stats", AdminController.getStats);
+router.get("/scouts", AdminController.getAllScouts);
+router.post("/add-leader", AdminController.addLeader);
+router.get("/check-eligibility/:scout_id", AdminController.checkEligibility);
+router.post("/manage-activity", AdminController.manageActivity);
+router.post("/manage-badge", AdminController.manageBadge);
+router.post("/approve-user", AdminController.approveUser);
+router.get("/users", AdminController.getUsers);
+router.get("/groups", AdminController.getGroups);
+router.get("/groups/:groupId/roster", AdminController.getGroupRoster);
+router.get("/logs", AdminController.getLogs);
 
 module.exports = router;
+

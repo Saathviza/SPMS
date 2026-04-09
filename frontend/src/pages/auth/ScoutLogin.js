@@ -22,17 +22,32 @@ export default function ScoutLogin() {
     setError('');
 
     try {
-      const data = await authService.login(email, password);
+      const data = await authService.login(email, password, 'scout');
 
-      // Store auth data
+      // ✅ ROLE VALIDATION (CRITICAL)
+      if (data.role !== 'scout') {
+        setError('This account is not registered as a Scout.');
+        return;
+      }
+
+      // ✅ STORE REQUIRED AUTH DATA
       localStorage.setItem('token', data.token);
       localStorage.setItem('role', data.role);
+      localStorage.setItem('user_id', data.user_id); // IMPORTANT
       localStorage.setItem('user', JSON.stringify(data.user));
 
       navigate('/scout/dashboard');
     } catch (err) {
-      console.error(err);
-      setError('Invalid credentials');
+      console.error('Login error:', err);
+
+      if (err.response) {
+        const { message, error, details } = err.response.data;
+        setError(details || error || message || 'Server error. Please try again.');
+      } else if (err.request) {
+        setError('Server is unreachable. Please check your connection.');
+      } else {
+        setError('An unexpected error occurred.');
+      }
     }
   };
 

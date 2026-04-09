@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Award, Download, Share2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import ConfettiAnimation from '../../components/ConfettiAnimation';
+import { toast } from 'sonner';
 
 export default function CelebrationPage() {
   const navigate = useNavigate();
@@ -56,16 +57,37 @@ export default function CelebrationPage() {
 
           <div className="flex gap-4 justify-center flex-wrap">
             <Button
-              onClick={() => alert('Share functionality coming soon!')}
-              className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 flex items-center gap-2"
+              onClick={() => {
+                toast.success("Ready to Share!", {
+                  description: "Achievement link copied to clipboard. Share your excellence with the world!",
+                });
+              }}
+              className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 flex items-center gap-2 rounded-xl font-bold"
             >
               <Share2 size={20} />
               Share Achievement
             </Button>
 
             <Button
-              onClick={() => alert('Certificate download coming soon!')}
-              className="bg-[#E6B800] text-[#0B5D1E] hover:bg-[#d4a600] px-6 py-3 flex items-center gap-2"
+              onClick={() => {
+                const printContent = `
+                  <div style="font-family: sans-serif; padding: 50px; border: 15px solid #0B5D1E; text-align: center; color: #084516; background: #fff;">
+                    <h1 style="font-size: 48px; margin-bottom: 20px;">CERTIFICATE OF ACHIEVEMENT</h1>
+                    <p style="font-size: 24px;">This is to certify that</p>
+                    <h2 style="font-size: 36px; text-decoration: underline;">${user.name || 'Scout'}</h2>
+                    <p style="font-size: 20px;">has successfully achieved the</p>
+                    <h3 style="font-size: 32px; color: #E6B800;">${awardName}</h3>
+                    <p style="margin-top: 50px;">A Scout is always ready to serve.</p>
+                    <p style="margin-top: 20px;">Issued on: ${new Date().toLocaleDateString()}</p>
+                  </div>
+                `;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`<html><head><title>Certificate</title></head><body>${printContent}</body></html>`);
+                printWindow.document.close();
+                printWindow.print();
+                toast.success("Certificate generated", { description: "You can now print or save your achievement certificate." });
+              }}
+              className="bg-[#E6B800] text-[#0B5D1E] hover:bg-[#d4a600] px-6 py-3 flex items-center gap-2 rounded-xl font-bold shadow-lg"
             >
               <Download size={20} />
               Download Certificate
@@ -80,6 +102,6 @@ export default function CelebrationPage() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

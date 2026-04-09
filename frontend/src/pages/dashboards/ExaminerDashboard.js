@@ -11,9 +11,12 @@ import {
   Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { examinerService } from '../../services/api';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -24,24 +27,63 @@ export default function ExaminerDashboard() {
   const navigate = useNavigate();
   const { state } = useLocation(); // examiner data
 
-  const badgeSubmissions = [
-    { id: 1, scout: 'Kavindu Perera', badge: 'First Aid', completion: 95 },
-    { id: 2, scout: 'Anushka Silva', badge: 'Leadership', completion: 88 },
-    { id: 3, scout: 'Nimali Fernando', badge: 'Environment', completion: 92 },
-  ];
+  const [badgeSubmissions, setBadgeSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [feedbackText, setFeedbackText] = useState("");
+
+  const fetchPendingBadges = async () => {
+    try {
+      const data = await examinerService.getPendingBadges();
+      setBadgeSubmissions(data);
+    } catch (err) {
+      toast.error('Failed to load pending badges');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingBadges();
+  }, []);
 
   const stats = {
     pending: badgeSubmissions.length,
-    approved: 32,
-    rejected: 3,
-    total: 40,
+    approved: 0,
+    rejected: 0,
+    total: badgeSubmissions.length,
   };
 
-  const approve = (scout, badge) =>
-    toast.success(`${badge} approved for ${scout}`);
+  const approve = async (id, scout, badge) => {
+    try {
+      await examinerService.approveBadge({ id, feedback: feedbackText || 'Badge approved' });
+      toast.success(`Badge Approved: ${badge}`, {
+        description: `Digital Signature applied. ${scout}'s ${badge} badge is official!`,
+        icon: <Award className="h-5 w-5" />
+      });
+      setFeedbackText("");
+      fetchPendingBadges();
+    } catch (err) {
+      toast.error('Failed to approve badge');
+    }
+  };
 
-  const reject = (scout, badge) =>
-    toast.error(`${badge} rejected for ${scout}`);
+  const reject = async (id, scout, badge) => {
+    if (!feedbackText) {
+      toast.error("Feedback is heavily required when rejecting proof!");
+      return;
+    }
+    try {
+      await examinerService.rejectBadge({ id, feedback: feedbackText });
+      toast.error(`Badge Rejected: ${badge}`, {
+        description: `Feedback sent to ${scout}.`,
+        icon: <XCircle className="h-5 w-5" />
+      });
+      setFeedbackText("");
+      fetchPendingBadges();
+    } catch (err) {
+      toast.error('Failed to reject badge');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-amber-50">
@@ -100,41 +142,85 @@ export default function ExaminerDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {badgeSubmissions.map((b) => (
-                  <tr key={b.id} className="border-b">
-                    <td className="p-2">{b.scout}</td>
-                    <td className="p-2">{b.badge}</td>
-                    <td className="p-2 text-center">{b.completion}</td>
-                    <td className="p-2 text-center">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" variant="outline">
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Evidence Review</DialogTitle>
-                          </DialogHeader>
-                          <Textarea placeholder="Comments..." />
-                        </DialogContent>
-                      </Dialog>
-                    </td>
-                    <td className="p-2 flex gap-2 justify-center">
-                      <Button size="sm" onClick={() => approve(b.scout, b.badge)}>
-                        Approve
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => reject(b.scout, b.badge)}
-                      >
-                        Reject
-                      </Button>
+                {badgeSubmissions.length > 0 ? (
+                  badgeSubmissions.map((b) => (
+                    <tr key={b.id} className="border-b hover:bg-amber-50/50 transition">
+                      <td className="p-3 font-semibold">{b.scout_name}</td>
+                      <td className="p-3">{b.name} <span className="text-xs text-gray-500 ml-1">({b.badge_level})</span></td>
+                      <td className="p-3 text-center">100%</td>
+                      <td className="p-3 text-center">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" className="border-amber-200 text-amber-700 hover:bg-amber-100">
+                              <Eye className="w-4 h-4 mr-1" />
+                              View Notes
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Submitted Progress Book Evidence</DialogTitle>
+                              <DialogDescription>
+                                Proof submitted directly from the Scout's Digital Logbook.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="p-4 bg-gray-50 rounded-md border text-sm text-gray-700 font-medium whitespace-pre-wrap">
+                              {b.evidence_summary || "No notes provided. (Refer to physical copies if necessary)"}
+                            </div>
+                            {b.proof_url && (
+                              <div className="mt-4 p-4 border rounded bg-blue-50">
+                                <a href={b.proof_url} target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold">
+                                  View Attached Proof File
+                                </a>
+                              </div>
+                            )}
+                          </DialogContent>
+                        </Dialog>
+                      </td>
+                      <td className="p-3 text-center">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md">
+                              Review & Sign
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Digital Signature Approval</DialogTitle>
+                              <DialogDescription>
+                                This digital approval replaces the physical progress record book signature for {b.scout_name}.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                              <Textarea 
+                                  placeholder="Type Examiner Feedback here (Required if rejecting)..." 
+                                  className="w-full min-h-[100px] border-amber-200 focus-visible:ring-amber-500" 
+                                  value={feedbackText}
+                                  onChange={(e) => setFeedbackText(e.target.value)}
+                              />
+                              <div className="flex gap-3 justify-end mt-4">
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => reject(b.id, b.scout_name, b.name)}
+                                >
+                                  Reject Evidence
+                                </Button>
+                                <Button onClick={() => approve(b.id, b.scout_name, b.name)} className="bg-green-600 hover:bg-green-700 font-bold">
+                                  Digitally Sign & Approve
+                                </Button>
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="p-6 text-center text-gray-500 font-medium italic">
+                      "A Scout is patient." No pending badges require signatures at this time.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </CardContent>
