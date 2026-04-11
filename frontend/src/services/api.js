@@ -24,12 +24,20 @@ api.interceptors.request.use(
 
 // Add auth services
 export const authService = {
+    getPublicGroups: async () => {
+        const response = await api.get('/auth/groups');
+        return response.data;
+    },
     login: async (email, password, role) => {
         const response = await api.post('/auth/login', { email, password, role });
         return response.data;
     },
     registerScout: async (data) => {
-        const response = await api.post('/auth/register', data);
+        let headers = {};
+        if (data instanceof FormData) {
+            headers['Content-Type'] = 'multipart/form-data';
+        }
+        const response = await api.post('/auth/register', data, { headers });
         return response.data;
     },
     logout: () => {

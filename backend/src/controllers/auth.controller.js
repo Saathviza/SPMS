@@ -8,6 +8,21 @@ const JWT_SECRET = process.env.JWT_SECRET || "scout-pms-secret";
 const AuthController = {
 
   // ======================
+  // PUBLIC GROUPS FETCH
+  // ======================
+  getPublicGroups: async (req, res) => {
+    try {
+        const [groups] = await pool.query(
+            `SELECT id, group_name, district FROM scout_groups ORDER BY group_name`
+        );
+        res.status(200).json(groups);
+    } catch (err) {
+        console.error("❌ GET PUBLIC GROUPS ERROR:", err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+  },
+
+  // ======================
   // LOGIN
   // ======================
   login: async (req, res) => {
@@ -111,11 +126,24 @@ const AuthController = {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
+      // Check/Add profile_photo_url column in users table safely
+      try {
+          await pool.query("ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_photo_url VARCHAR(255) NULL");
+      } catch (e) {
+          // Ignore error if already exists or other dialect constraints
+      }
+
+      // Check if profile photo was uploaded
+      let profilePhotoUrl = null;
+      if (req.files && req.files.profile_photo && req.files.profile_photo.length > 0) {
+          profilePhotoUrl = req.files.profile_photo[0].filename;
+      }
+
       // 3. Insert into users
       const username = email.split('@')[0];
       const [userResult] = await pool.query(
-        `INSERT INTO users (full_name, email, username, password_hash, role_id, status) VALUES (?, ?, ?, ?, 1, 'ACTIVE')`,
-        [name, email, username, hashedPassword]
+        `INSERT INTO users (full_name, email, username, password_hash, role_id, status, profile_photo_url) VALUES (?, ?, ?, ?, 1, 'ACTIVE', ?)`,
+        [name, email, username, hashedPassword, profilePhotoUrl]
       );
 
       const userId = userResult.insertId;
