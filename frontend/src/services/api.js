@@ -100,6 +100,11 @@ export const scoutService = {
     getBadgeSyllabus: async (badgeId) => {
         const response = await api.get(`/scout/badges/${badgeId}/syllabus`);
         return response.data;
+    },
+
+    getTimeline: async (scoutId) => {
+        const response = await api.get(`/scout/timeline/${scoutId}`);
+        return response.data;
     }
 };
 
@@ -125,6 +130,11 @@ export const leaderService = {
     },
     getReportFile: async (type) => {
         const response = await api.get(`/leader/reports/file/${encodeURIComponent(type)}`);
+        return response.data;
+    },
+
+    getLeaderboard: async () => {
+        const response = await api.get('/leader/leaderboard');
         return response.data;
     }
 };
@@ -197,6 +207,10 @@ export const activityService = {
 
 // Add examiner services
 export const examinerService = {
+    getDashboardStats: async () => {
+        const response = await api.get('/examiner/dashboard-stats');
+        return response.data;
+    },
     getPendingBadges: async () => {
         const response = await api.get('/examiner/pending-badges');
         return response.data;
@@ -212,14 +226,29 @@ export const examinerService = {
     getScoutDetails: async (scoutId) => {
         const response = await api.get(`/examiner/scout/${scoutId}`);
         return response.data;
+    },
+    getEligibleAwards: async () => {
+        const response = await api.get('/examiner/eligible-awards');
+        return response.data;
     }
 };
 
 // Add badge apply service to scoutService
 scoutService.applyForBadge = async (badgeId, notes = '') => {
-    // Resolve scout_id inside controller or just pass badge_id
     const response = await api.post('/badges/submit', { badge_id: badgeId, notes });
     return response.data;
+};
+
+// Add feedback services
+export const feedbackService = {
+    getFeedback: async (targetType, targetId) => {
+        const response = await api.get(`/feedback/${targetType}/${targetId}`);
+        return response.data;
+    },
+    addFeedback: async (targetType, targetId, message, scoutId) => {
+        const response = await api.post('/feedback', { target_type: targetType, target_id: targetId, message, scout_id: scoutId });
+        return response.data;
+    }
 };
 
 export default api;

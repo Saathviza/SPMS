@@ -1,0 +1,11 @@
+Table 'spms_db.badge_examiners' doesn't exist\nError: Table 'spms_db.badge_examiners' doesn't exist
+    at PromisePool.query (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\mysql2\lib\promise\pool.js:36:22)
+    at getPendingBadges (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\src\controllers\examiner.controller.js:11:47)
+    at Layer.handle [as handle_request] (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\route.js:149:13)
+    at C:\Users\Home\OneDrive\Desktop\scout-pms\backend\src\middleware\role.js:9:5
+    at Layer.handle [as handle_request] (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\route.js:149:13)
+    at authenticate (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\src\middleware\auth.js:25:5)
+    at Layer.handle [as handle_request] (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\Home\OneDrive\Desktop\scout-pms\backend\node_modules\express\lib\router\route.js:149:13)

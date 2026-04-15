@@ -162,6 +162,14 @@ const AuthController = {
         roleName: 'Scout'
       });
 
+      // 🔔 Real-time socket emit to admin dashboard to trigger auto-refresh
+      if (req.app.io) {
+         req.app.io.emit('user:registered', {
+            username: name,
+            role: 'Scout'
+         });
+      }
+
       return res.status(201).json({
         success: true,
         message: "Scout registered successfully",

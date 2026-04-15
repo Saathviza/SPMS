@@ -145,10 +145,10 @@ const BadgeController = {
                     badgeName: details[0].badge_name
                 });
                 
-                // 🔔 Real-time emit to examiner dashboard
+                // 🔔 Real-time emit to globally trigger dashboard fetches
                 const io = req.app.io;
                 if (io) {
-                    io.to('examiner').emit('badge:submission:new', {
+                    io.emit('badge:submission:new', {
                         scout_id,
                         badgeName: details[0].badge_name,
                         message: 'A scout applied for a badge review'

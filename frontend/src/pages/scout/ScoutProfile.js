@@ -14,6 +14,9 @@ import {
   Calendar,
   User,
   Edit,
+  Trophy,
+  ClipboardCheck,
+  Timer
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
 import { toast } from 'sonner';
@@ -26,6 +29,9 @@ export default function ScoutProfile() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Timeline State
+  const [timeline, setTimeline] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,7 +54,8 @@ export default function ScoutProfile() {
         // Use ID from URL if provided, otherwise use current user's ID
         const targetId = id || user.id;
         const data = await scoutService.getProfile(targetId);
-        
+        console.log("🔍 [DEBUG] Profile Data Received:", data);
+
         setProfileData(data);
         setFormData({
           name: data.full_name || data.name || '',
@@ -58,6 +65,13 @@ export default function ScoutProfile() {
           district: data.district || '',
           province: data.province || ''
         });
+
+        // 🗓️ Fetch Timeline (New WOW Feature - Additive)
+        try {
+          const history = await scoutService.getTimeline(targetId);
+          setTimeline(history);
+        } catch (tErr) { console.error("History fetch optional failure:", tErr); }
+
       } catch (err) {
         console.error("Error fetching profile:", err);
         toast.error("Failed to load profile");
@@ -166,6 +180,17 @@ export default function ScoutProfile() {
                   ID Verified
                 </div>
               </div>
+
+              {timeline.length > 0 && (
+                <Button
+                  variant="ghost"
+                  className="mt-6 text-amber-600 font-bold hover:bg-amber-50 rounded-xl"
+                  onClick={() => document.getElementById('scout-journey-timeline')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  <Timer className="w-4 h-4 mr-2" />
+                  View Journey Timeline
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -290,6 +315,94 @@ export default function ScoutProfile() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Real Progress Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10 mb-12">
+          {/* Badges Earned */}
+          <Card className="shadow-xl border-0 rounded-[2rem] bg-white hover:shadow-2xl transition-all group overflow-hidden">
+            <CardContent className="p-8 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Trophy className="w-10 h-10 text-amber-600" />
+              </div>
+              <p className="text-4xl font-black text-gray-900 mb-1">{profileData?.badges_earned || 0}</p>
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Badges Earned</p>
+              <div className="w-full h-1 bg-amber-500 absolute bottom-0 left-0"></div>
+            </CardContent>
+          </Card>
+
+          {/* Activities Completed */}
+          <Card className="shadow-xl border-0 rounded-[2rem] bg-white hover:shadow-2xl transition-all group overflow-hidden">
+            <CardContent className="p-8 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <ClipboardCheck className="w-10 h-10 text-green-600" />
+              </div>
+              <p className="text-4xl font-black text-gray-900 mb-1">{profileData?.activities_completed || 0}</p>
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Activities Completed</p>
+              <div className="w-full h-1 bg-green-600 absolute bottom-0 left-0"></div>
+            </CardContent>
+          </Card>
+
+          {/* Service Hours */}
+          <Card className="shadow-xl border-0 rounded-[2rem] bg-white hover:shadow-2xl transition-all group overflow-hidden">
+            <CardContent className="p-8 flex flex-col items-center">
+              <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Timer className="w-10 h-10 text-blue-600" />
+              </div>
+              <p className="text-4xl font-black text-gray-900 mb-1">{profileData?.service_hours || 0}</p>
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Service Hours</p>
+              <div className="w-full h-1 bg-blue-600 absolute bottom-0 left-0"></div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* 🗓️ Scout Journey Timeline (Additve WOW Feature) */}
+        {timeline.length > 0 && (
+          <div id="scout-journey-timeline" className="mt-8 mb-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            <h3 className="text-3xl font-black text-gray-900 mb-10 flex items-center gap-3">
+              <span className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-amber-600" />
+              </span>
+              Scout Journey Timeline
+            </h3>
+
+            <div className="relative border-l-4 border-gray-100 ml-6 pl-10 space-y-12">
+              {timeline.map((event, idx) => (
+                <div key={idx} className="relative group">
+                  {/* Icon Node */}
+                  <div className={`absolute -left-16 top-0 w-12 h-12 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center transition-all group-hover:scale-110 ${event.record_type === 'badge' ? 'bg-amber-500 text-white' : 'bg-green-600 text-white'}`}>
+                    {event.record_type === 'badge' ? <Trophy className="w-6 h-6" /> : <ClipboardCheck className="w-6 h-6" />}
+                  </div>
+
+                  {/* Content */}
+                  <div className="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 hover:border-amber-200 transition-all">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex gap-2">
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${event.priority === 'high' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                          {event.record_type} milestone
+                        </span>
+                        {event.status && (
+                           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${event.status === 'COMPLETED' || event.status === 'VERIFIED' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {event.status}
+                           </span>
+                        )}
+                      </div>
+                      <span className="text-sm font-bold text-gray-400">
+                        {new Date(event.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-black text-gray-900">{event.title}</h4>
+                    <p className="text-gray-500 font-medium mt-1">{event.description}</p>
+                  </div>
+                </div>
+              ))}
+
+              {/* Achievement End Marker */}
+              <div className="p-4 bg-gray-50 rounded-2xl text-center border-2 border-dashed border-gray-200">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Beginning of Your Scout Adventure</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

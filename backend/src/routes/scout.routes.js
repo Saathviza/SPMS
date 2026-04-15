@@ -47,5 +47,11 @@ router.get(
   ScoutController.getBadgeSyllabus
 );
 
-module.exports = router;
+router.get(
+  "/timeline/:scout_id",
+  auth,
+  role(["scout", "leader"]),
+  ScoutController.getTimeline
+);
 
+module.exports = router;

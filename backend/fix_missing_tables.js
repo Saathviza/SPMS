@@ -209,6 +209,25 @@ const migrations = [
             CONSTRAINT fk_sap_scout FOREIGN KEY (scout_id) REFERENCES scouts(id) ON UPDATE CASCADE ON DELETE CASCADE,
             CONSTRAINT fk_sap_award FOREIGN KEY (award_id) REFERENCES awards(id) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB`
+    },
+    
+    // ── service_logs table
+    {
+        name: "Create service_logs table",
+        check: "SHOW TABLES LIKE 'service_logs'",
+        sql: `CREATE TABLE IF NOT EXISTS service_logs (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            scout_id INT UNSIGNED NOT NULL,
+            service_date DATE NOT NULL,
+            hours DECIMAL(5,2) NOT NULL,
+            description VARCHAR(255) NOT NULL,
+            status ENUM('SUBMITTED','APPROVED','REJECTED') NOT NULL DEFAULT 'SUBMITTED',
+            approved_by_leader_user_id INT UNSIGNED NULL,
+            approved_at TIMESTAMP NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_service_log_scout FOREIGN KEY (scout_id) REFERENCES scouts(id) ON UPDATE CASCADE ON DELETE CASCADE,
+            CONSTRAINT fk_service_log_leader FOREIGN KEY (approved_by_leader_user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL
+        ) ENGINE=InnoDB`
     }
 ];
 

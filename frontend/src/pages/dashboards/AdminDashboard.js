@@ -341,7 +341,7 @@ export default function AdminDashboard() {
       
       {/* 1. Create Activity Modal */}
       <Dialog open={showActivityModal} onOpenChange={setShowActivityModal}>
-        <DialogContent className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-green-800 text-xl font-bold flex items-center gap-2">
               <ActivityIcon className="w-5 h-5" /> Activity Management
@@ -378,7 +378,7 @@ export default function AdminDashboard() {
 
       {/* 2. Manage Badges Modal */}
       <Dialog open={showBadgeModal} onOpenChange={setShowBadgeModal}>
-        <DialogContent className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-[#0B5D1E] text-xl font-bold flex items-center gap-2">
               <Medal className="w-5 h-5" /> Badge Management
@@ -430,7 +430,7 @@ export default function AdminDashboard() {
       
       {/* 3. Add Leader Modal */}
       <Dialog open={showLeaderModal} onOpenChange={setShowLeaderModal}>
-        <DialogContent className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-md bg-white rounded-2xl shadow-2xl">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-blue-700 text-xl font-bold flex items-center gap-2">
               <Shield className="w-5 h-5" /> Add Scout Leader
@@ -463,7 +463,7 @@ export default function AdminDashboard() {
 
       {/* 4. View Leaders Modal */}
       <Dialog open={showViewLeadersModal} onOpenChange={setShowViewLeadersModal}>
-        <DialogContent className="sm:max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-gray-800 text-xl font-bold flex items-center gap-2">
               <Shield className="w-5 h-5 text-green-600" /> Currently Enrolled Scout Leaders
@@ -490,7 +490,7 @@ export default function AdminDashboard() {
 
       {/* 5. View Activities Modal */}
       <Dialog open={showViewActivitiesModal} onOpenChange={setShowViewActivitiesModal}>
-        <DialogContent className="sm:max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-2xl bg-white rounded-2xl shadow-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="text-gray-800 text-xl font-bold flex items-center gap-2">
               <ActivityIcon className="w-5 h-5 text-purple-600" /> Available Activities

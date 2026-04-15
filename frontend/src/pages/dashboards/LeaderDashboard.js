@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../components/ui/dialog';
-import { leaderService, authService } from '../../services/api';
+import { leaderService, authService, scoutService } from '../../services/api';
 import { connectSocket, getSocket } from '../../services/socket';
 import {
   Users,
@@ -23,13 +23,57 @@ import {
   Award,
   Download,
   MessageSquare,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Trophy,
+  Calendar,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
+import FeedbackWidget from '../../components/FeedbackWidget';
+
+// ── TIMELINE VIEW SUB-COMPONENT ───────────────────────────────────────────
+const TimelineView = ({ scoutId }) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const history = await scoutService.getTimeline(scoutId);
+        setData(history);
+      } catch (e) { console.error(e); }
+      finally { setLoading(false); }
+    };
+    fetch();
+  }, [scoutId]);
+
+  if (loading) return <div className="p-10 text-center animate-pulse text-amber-600 font-bold">Loading Chronicles...</div>;
+  if (data.length === 0) return <div className="p-10 text-center text-gray-400 italic font-medium">No official milestones recorded yet.</div>;
+
+  return (
+    <div className="relative border-l-4 border-amber-200 ml-4 pl-8 space-y-8 py-4">
+      {data.map((event, idx) => (
+        <div key={idx} className="relative">
+          <div className={`absolute -left-12 top-0 w-8 h-8 rounded-xl flex items-center justify-center shadow-md ${event.record_type === 'badge' ? 'bg-amber-500 text-white' : 'bg-green-600 text-white'}`}>
+             {event.record_type === 'badge' ? <Award className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+          </div>
+          <div className="bg-white p-4 rounded-2xl border border-amber-100 shadow-sm">
+             <div className="flex justify-between items-center mb-1">
+                <span className="text-[9px] font-black uppercase text-amber-600">{event.record_type}</span>
+                <span className="text-[10px] font-bold text-gray-400">{new Date(event.date).toLocaleDateString()}</span>
+             </div>
+             <h4 className="font-black text-gray-900 leading-tight">{event.title}</h4>
+             <p className="text-xs text-gray-500 mt-1">{event.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default function LeaderDashboard() {
   const navigate = useNavigate();
-  const [section, setSection] = useState('scouts');
+  const [section, setSection] = useState('overview');
   const [scouts, setScouts] = useState([]);
   const [pendingActivities, setPendingActivities] = useState([]);
   const [leaderData, setLeaderData] = useState(null);
@@ -39,6 +83,9 @@ export default function LeaderDashboard() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
+  
+  // Leaderboard State
+  const [leaderboard, setLeaderboard] = useState([]);
 
   const fetchLeaderData = async () => {
     try {
@@ -54,6 +101,10 @@ export default function LeaderDashboard() {
 
       const activities = await leaderService.getPendingActivities();
       setPendingActivities(activities);
+      try {
+        const rankings = await leaderService.getLeaderboard();
+        setLeaderboard(rankings);
+      } catch (e) { console.error("Leaderboard Error:", e); }
     } catch (err) {
       console.error("Error fetching leader data:", err);
       toast.error("Failed to load dashboard data");
@@ -177,7 +228,8 @@ export default function LeaderDashboard() {
         {/* Sidebar */}
         <div className="w-64 bg-white p-4 shadow-lg min-h-[calc(100vh-100px)]">
           {[
-            { id: 'scouts', label: 'My Scouts', icon: Users },
+            { id: 'overview', label: 'Scout Overview', icon: Users },
+            { id: 'leaderboard', label: 'Troop Leaderboard', icon: Trophy },
             { id: 'activities', label: 'Pending Approvals', icon: Activity },
             { id: 'reports', label: 'Reports', icon: FileText },
           ].map((item) => {
@@ -200,43 +252,217 @@ export default function LeaderDashboard() {
 
         {/* Content */}
         <div className="flex-1 p-6">
-          {section === 'scouts' && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Scout Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {scouts.length === 0 ? (
-                  <p className="text-center py-10 text-gray-500">No scouts in your group.</p>
-                ) : (
+          {section === 'overview' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-black text-amber-900 flex items-center gap-3">
+                  <div className="bg-amber-100 p-2 rounded-xl">
+                    <Users className="w-8 h-8 text-amber-600" />
+                  </div>
+                  Troop Scout Overview
+                </h2>
+                <div className="flex gap-2">
+                   <div className="bg-white px-4 py-2 rounded-xl border-b-2 border-amber-500 shadow-md">
+                      <p className="text-[10px] font-black uppercase text-gray-400">Total Scouts</p>
+                      <p className="text-xl font-black text-amber-900 leading-none">{scouts.length}</p>
+                   </div>
+                </div>
+              </div>
+
+              {scouts.length === 0 ? (
+                <Card className="border-2 border-dashed border-amber-200">
+                  <CardContent className="flex flex-col items-center justify-center py-20">
+                    <Users className="w-16 h-16 text-amber-100 mb-4" />
+                    <p className="text-amber-800 font-bold text-xl uppercase italic">No scouts found in this group.</p>
+                    <p className="text-gray-400 mt-2">Active members will appear here once registered.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {scouts.map((s) => (
+                    <Card key={s.id} className="group border-none shadow-xl rounded-[2rem] overflow-hidden hover:shadow-2xl hover:scale-[1.03] transition-all bg-white">
+                      <div className="h-1 bg-gradient-to-r from-amber-500 to-amber-600"></div>
+                      <CardContent className="p-8">
+                        <div className="flex justify-between items-start mb-6">
+                          <div>
+                            <h3 className="text-xl font-black text-gray-900 group-hover:text-amber-800 transition-colors uppercase tracking-tight">{s.name}</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                               <span className="text-[10px] font-bold text-gray-400 italic">ID: SLC-{s.id.toString().padStart(3,'0')}</span>
+                               <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                               <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">{s.age} Years Old</span>
+                            </div>
+                          </div>
+                          <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center border border-amber-100 group-hover:bg-amber-100 group-hover:rotate-12 transition-all">
+                             <User className="w-6 h-6 text-amber-600" />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                           <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
+                              <p className="text-[10px] font-black text-amber-700 uppercase mb-1">Badges</p>
+                              <div className="flex items-center gap-2">
+                                 <Award className="w-4 h-4 text-amber-600" />
+                                 <span className="text-2xl font-black text-gray-900">{s.badges_earned}</span>
+                              </div>
+                           </div>
+                           <div className="bg-green-50/50 p-4 rounded-2xl border border-green-100">
+                              <p className="text-[10px] font-black text-green-700 uppercase mb-1">Activities</p>
+                              <div className="flex items-center gap-2">
+                                 <Activity className="w-4 h-4 text-green-600" />
+                                 <span className="text-2xl font-black text-gray-900">{s.activities_completed}</span>
+                              </div>
+                           </div>
+                        </div>
+
+                        <div className="space-y-4">
+                           {/* Journey Progress Marker */}
+                           <div>
+                              <div className="flex justify-between text-[10px] font-black uppercase text-gray-400 mb-1">
+                                 <span>Milestone Progress</span>
+                                 <span>{Math.min(100, Math.round((s.badges_earned / 21) * 100))}%</span>
+                              </div>
+                              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                 <div 
+                                   className="h-full bg-amber-500 rounded-full transition-all duration-1000" 
+                                   style={{ width: `${Math.min(100, (s.badges_earned / 21) * 100)}%` }}
+                                 />
+                              </div>
+                           </div>
+
+                           <div className="flex gap-2 pt-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl h-12 shadow-lg shadow-amber-900/10"
+                                    onClick={async () => {
+                                      try {
+                                        const journey = await scoutService.getTimeline(s.id);
+                                        // We can't use state here easily because the dialog is already open 
+                                        // Instead, we pass the data to the dialog content if possible
+                                      } catch (e) { console.error(e); }
+                                    }}
+                                  >
+                                    <Eye className="w-4 h-4 mr-2" /> Journey
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl bg-amber-50/50 border-none shadow-2xl rounded-3xl overflow-hidden p-0">
+                                   <div className="bg-amber-800 text-white p-6 pt-10">
+                                      <h3 className="text-3xl font-black tracking-tighter mb-1 uppercase italic">{s.name}'s Scout Journey</h3>
+                                      <p className="text-amber-200 font-bold tracking-widest text-xs uppercase opacity-80">Official Activity Timeline</p>
+                                   </div>
+                                   <div className="p-8 max-h-[60vh] overflow-y-auto">
+                                      {/* Mini Journey Component Re-implemented for Quick View */}
+                                      <TimelineView scoutId={s.id} />
+                                   </div>
+                                   <div className="p-6 bg-white border-t flex justify-end">
+                                      <Button 
+                                        variant="outline" 
+                                        onClick={() => navigate(`/scout/profile/${s.id}`)}
+                                        className="border-amber-600 text-amber-700 font-bold rounded-xl"
+                                      >
+                                        Go to Full Profile
+                                      </Button>
+                                   </div>
+                                </DialogContent>
+                              </Dialog>
+
+                              <Button 
+                                variant="outline" 
+                                className="flex-1 border-amber-200 text-amber-700 hover:bg-amber-50 font-bold rounded-xl h-12"
+                                onClick={() => navigate(`/scout/profile/${s.id}`)}
+                              >
+                                Portfolio
+                              </Button>
+                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {section === 'leaderboard' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-amber-900 flex items-center gap-2">
+                  <Trophy className="w-8 h-8 text-amber-500" />
+                  Troop Excellence Rankings
+                </h2>
+                <div className="bg-amber-100 px-4 py-2 rounded-full text-amber-800 text-sm font-bold flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  Top Performers This Month
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                {leaderboard.slice(0, 3).map((scout, idx) => (
+                  <Card 
+                    key={scout.scout_id} 
+                    onClick={() => navigate(`/scout/profile/${scout.scout_id}`)}
+                    className={`border-none shadow-xl overflow-hidden cursor-pointer transition-all hover:scale-[1.07] active:scale-95 ${idx === 0 ? 'scale-105 ring-4 ring-amber-400 z-10' : 'scale-95'}`}
+                  >
+                    <div className={`h-2 ${idx === 0 ? 'bg-amber-400' : idx === 1 ? 'bg-gray-300' : 'bg-amber-600'}`} />
+                    <CardHeader className="text-center pb-2">
+                      <div className="mx-auto w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mb-2">
+                         <span className="text-2xl">{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</span>
+                      </div>
+                      <CardTitle className="text-lg">{scout.name}</CardTitle>
+                      <p className="text-sm font-bold text-amber-600 uppercase tracking-widest">{idx === 0 ? 'Group Champion' : idx === 1 ? 'Elite Scout' : 'Star Performer'}</p>
+                    </CardHeader>
+                    <CardContent className="text-center pt-0">
+                      <div className="flex justify-center gap-4 text-xs font-bold text-gray-500 mb-4">
+                        <span>{scout.badges} Badges</span>
+                        <span>{scout.activities} Acts</span>
+                      </div>
+                      <div className="text-4xl font-black text-amber-900">{scout.points}</div>
+                      <div className="text-[10px] text-gray-400 font-bold uppercase">Total Points</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <Card>
+                <CardContent className="p-0">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left border-b">
-                        <th className="p-2">Name</th>
-                        <th className="p-2 text-center">Badges</th>
-                        <th className="p-2 text-center">Activities</th>
-                        <th className="p-2 text-center">Action</th>
+                      <tr className="bg-gray-50 text-gray-400 text-[10px] font-black uppercase tracking-widest border-b">
+                        <th className="p-4 text-left">Rank</th>
+                        <th className="p-4 text-left">Scout Name</th>
+                        <th className="p-4 text-center">Badges</th>
+                        <th className="p-4 text-center">Activities</th>
+                        <th className="p-4 text-right">Points</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {scouts.map((s) => (
-                        <tr key={s.id} className="border-t hover:bg-amber-50/50">
-                          <td className="p-2 font-medium">{s.name}</td>
-                          <td className="p-2 text-center">{s.badges_earned}</td>
-                          <td className="p-2 text-center">{s.activities_completed}</td>
-                          <td className="p-2 text-center">
-                            <Button size="sm" variant="outline" onClick={() => navigate(`/scout/profile/${s.id}`)}>
-                              <Eye className="w-4 h-4 mr-1" />
-                              View
-                            </Button>
+                      {leaderboard.map((scout, idx) => (
+                        <tr 
+                          key={scout.scout_id} 
+                          onClick={() => navigate(`/scout/profile/${scout.scout_id}`)}
+                          className="border-b hover:bg-amber-50 transition-colors cursor-pointer group"
+                        >
+                          <td className="p-4 font-black text-xl italic text-gray-300 group-hover:text-amber-500 transition-colors">#{idx + 1}</td>
+                          <td className="p-4">
+                            <div className="font-bold text-amber-900 group-hover:text-amber-700">{scout.name}</div>
+                            <div className="text-[10px] text-gray-400 font-medium">Troop #124 - Colombo District</div>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold">🎯 {scout.badges}</span>
+                          </td>
+                          <td className="p-4 text-center">
+                            <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">⚡ {scout.activities}</span>
+                          </td>
+                          <td className="p-4 text-right">
+                             <span className="text-xl font-black text-amber-700">{scout.points}</span>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {section === 'activities' && (
@@ -250,7 +476,7 @@ export default function LeaderDashboard() {
                 ) : (
                   <div className="space-y-4">
                     {pendingActivities.map((a) => (
-                      <div key={a.id} className="flex justify-between items-center p-4 bg-white border rounded-lg shadow-sm">
+                      <div key={a.approval_id || a.id} className="flex justify-between items-center p-4 bg-white border rounded-lg shadow-sm">
                         <div className="flex-1">
                           <h4 className="font-bold text-lg text-amber-900">{a.activity_name}</h4>
                           <p className="text-sm font-medium text-gray-700">Scout: {a.scout_name}</p>
@@ -310,14 +536,16 @@ export default function LeaderDashboard() {
                                     No evidence uploaded for this activity.
                                   </div>
                                 )}
+                                
+                                <FeedbackWidget targetType="activity" targetId={a.approval_id || a.id} scoutId={a.scout_id} currentRole="leader" />
                               </div>
                             </DialogContent>
                           </Dialog>
 
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleApprove(a.id)}>
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleApprove(a.approval_id || a.id)}>
                             <Check className="w-4 h-4 mr-1" /> Approve
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleReject(a.id)}>
+                          <Button size="sm" variant="destructive" onClick={() => handleReject(a.approval_id || a.id)}>
                             <X className="w-4 h-4 mr-1" /> Reject
                           </Button>
                         </div>
@@ -352,13 +580,6 @@ export default function LeaderDashboard() {
                   icon: Users,
                   color: 'text-green-600',
                   bg: 'bg-green-100'
-                },
-                {
-                  title: 'Full Troop Roster Progress Book',
-                  desc: 'Complete digital record of all scouts with badge and activity counts',
-                  icon: Users,
-                  color: 'text-[#0B5D1E]',
-                  bg: 'bg-green-50'
                 }
               ].map((report) => (
                 <Card key={report.title} className="hover:shadow-lg transition-shadow duration-300">

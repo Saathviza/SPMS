@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { adminService } from '../../services/api';
+import { getSocket, connectSocket } from '../../services/socket';
 import { ArrowLeft, Clock, Activity, Shield, Download, Trash2, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -13,6 +14,23 @@ export default function SystemLogs() {
 
     useEffect(() => {
         fetchLogs();
+
+        // Implement automatic system updates
+        connectSocket('admin');
+        const socket = getSocket();
+        
+        const realTimeRefresher = () => fetchLogs();
+        socket.on('badge:submission:new', realTimeRefresher);
+        socket.on('activity:enrollment', realTimeRefresher);
+        socket.on('proof:submitted', realTimeRefresher);
+        socket.on('user:registered', realTimeRefresher);
+
+        return () => {
+            socket.off('badge:submission:new', realTimeRefresher);
+            socket.off('activity:enrollment', realTimeRefresher);
+            socket.off('proof:submitted', realTimeRefresher);
+            socket.off('user:registered', realTimeRefresher);
+        };
     }, []);
 
     const fetchLogs = async () => {
@@ -72,12 +90,12 @@ export default function SystemLogs() {
                         </div>
                     </CardHeader>
                     <CardContent className="p-4 bg-[#0a0f1d] font-mono text-[13px] text-green-500/90 leading-relaxed max-h-[70vh] overflow-y-auto custom-scrollbar">
-                        {logs.map(log => (
-                            <div key={log.id} className="mb-3 hover:bg-white/5 p-2 rounded transition-colors group">
-                                <span className="text-slate-500 text-[11px] mr-3 font-mono">[{log.timestamp}]</span>
+                        {logs.map((log, idx) => (
+                            <div key={idx} className="mb-3 hover:bg-white/5 p-2 rounded transition-colors group">
+                                <span className="text-slate-500 text-[11px] mr-3 font-mono">[{new Date(log.timestamp).toLocaleString()}]</span>
                                 <span className="text-indigo-400 font-bold mr-2 uppercase tracking-tighter">EVENT</span>
                                 <span className="text-slate-200">{log.event}</span>
-                                <span className="ml-2 text-slate-500 text-xs italic group-hover:text-green-300 transition-colors">via {log.user}</span>
+                                {log.user && <span className="ml-2 text-slate-500 text-xs italic group-hover:text-green-300 transition-colors">via {log.user}</span>}
                             </div>
                         ))}
                         <div className="mt-4 pt-4 border-t border-slate-800 flex items-center gap-2 text-slate-600">

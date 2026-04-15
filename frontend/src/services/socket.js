@@ -28,9 +28,14 @@ export function connectSocket(role) {
     const s = getSocket();
     if (!s.connected) {
         s.connect();
+        s.on('connect', () => {
+            s.emit('join', role);
+            console.log(`[SOCKET] Connected + joined room: ${role}`);
+        });
+    } else {
+        s.emit('join', role);
+        console.log(`[SOCKET] Re-joined room: ${role}`);
     }
-    s.emit('join', role);
-    console.log(`[SOCKET] Connected + joined room: ${role}`);
 }
 
 export function disconnectSocket() {

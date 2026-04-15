@@ -13,6 +13,6 @@ router.post("/approve-activity", LeaderController.approveActivity);
 router.post("/reject-activity", LeaderController.rejectActivity);
 router.get("/reports", LeaderController.getReports);
 router.get("/reports/file/:type", LeaderController.getReportFile);
+router.get("/leaderboard", LeaderController.getGroupLeaderboard);
 
 module.exports = router;
-

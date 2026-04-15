@@ -83,15 +83,15 @@ const ActivityController = {
 
                 await connection.commit();
 
-                // 🔔 Real-time: notify leader room that a new registration happened
+                // 🔔 Real-time: notify all rooms that a new registration happened
                 const io = req.app.io;
                 if (io) {
-                    io.to('leader').emit('activity:registered', {
+                    io.emit('activity:enrollment', {
                         scout_id,
                         activity_id,
                         message: 'A scout just registered for an activity'
                     });
-                    // Also push back to the scout themselves so their dashboard updates
+                    // Also push back to the scout themselves
                     io.to('scout').emit('my:activities:changed', { scout_id });
                 }
 
@@ -373,10 +373,10 @@ const ActivityController = {
 
             await connection.commit();
 
-            // 🔔 Real-time: notify leader that proof was submitted
+            // 🔔 Real-time: notify globally that proof was submitted
             const io = req.app.io;
             if (io) {
-                io.to('leader').emit('proof:submitted', {
+                io.emit('proof:submitted', {
                     scout_id,
                     activityId,
                     message: 'A scout has submitted proof for review'
