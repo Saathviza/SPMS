@@ -7,6 +7,10 @@
     "server": "node app.js",
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "fidelity-sync": "node FINAL_FIDELITY_SYNC.js",
+    "resurrect": "node DASHBOARD_RESURRECTION.js",
+    "rebuild-mary": "node RECOVER_EXAMINER_TABLE.js",
+    "check-scouts": "node -e \"require('dotenv').config(); const mysql = require('mysql2/promise'); mysql.createConnection({host:'127.0.0.1',user:'root',password:'2003',database:'spms_db'}).then(async c => { const [rows] = await c.query('SELECT s.id, u.full_name FROM scouts s JOIN users u ON s.user_id = u.id'); console.log('REAL_SCOUTS:', rows); process.exit(); })\"",
     "migrate": "node BULK_SCALE_MIGRATION.js"
   },
   "dependencies": {

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 /* Auth pages */
 import MainPortal from './pages/common/MainPortal';
+import LandingPage from './pages/common/LandingPage';
 import ScoutLogin from './pages/auth/ScoutLogin';
 import LeaderLogin from './pages/auth/LeaderLogin';
 import ExaminerLogin from './pages/auth/ExaminerLogin';
@@ -42,11 +43,11 @@ const RequireAuth = ({ role, children }) => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   if (!token || !user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/portal" replace />;
   }
 
   if (role && user.role !== role) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/portal" replace />;
   }
 
   return children;
@@ -62,7 +63,8 @@ export default function App() {
         {/* ===================== */}
         {/* Public / Entry */}
         {/* ===================== */}
-        <Route path="/" element={<MainPortal />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/portal" element={<MainPortal />} />
 
         {/* ===================== */}
         {/* Authentication */}
@@ -228,7 +230,7 @@ export default function App() {
         {/* ===================== */}
         {/* Fallback */}
         {/* ===================== */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/portal" replace />} />
 
       </Routes>
     </BrowserRouter>

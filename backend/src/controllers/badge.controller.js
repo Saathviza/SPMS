@@ -45,7 +45,7 @@ const BadgeController = {
         }
     },
 
-    // Get pending badges (Submitted but not reviewed)
+    // Get pending badges (submitted but not yet reviewed by leader)
     getPendingBadges: async (req, res) => {
         try {
             const { scout_id } = req.params;
@@ -54,7 +54,7 @@ const BadgeController = {
                 `SELECT bs.*, b.badge_name as name, b.description, b.badge_level
                  FROM badge_submissions bs
                  JOIN badges b ON bs.badge_id = b.id
-                 WHERE bs.scout_id = ? AND bs.status = 'PENDING'
+                 WHERE bs.scout_id = ? AND bs.status IN ('LEADER_PENDING', 'PENDING')
                  ORDER BY bs.submitted_at DESC`,
                 [scout_id]
             );
@@ -67,11 +67,13 @@ const BadgeController = {
     },
 
     // Submit badge for review
+    // FIX: Sets status to LEADER_PENDING so it routes to the leader FIRST,
+    // not directly to the examiner.
     submitBadge: async (req, res) => {
         try {
             let { scout_id, badge_id, notes } = req.body;
 
-            // Resolve scout_id if not provided (safe approach)
+            // Resolve scout_id if not provided
             if (!scout_id && req.user) {
                 const [scoutRows] = await pool.query(
                     "SELECT id FROM scouts WHERE user_id = ?",
@@ -83,33 +85,34 @@ const BadgeController = {
             }
 
             if (!scout_id || !badge_id) {
-                console.warn(`[BADGE SUBMIT] Missing data: scout_id=${scout_id}, badge_id=${badge_id}`);
-                return res.status(400).json({ 
+                return res.status(400).json({
                     message: "Identity verification failed or Badge ID is missing",
                     missing: { scout_id: !scout_id, badge_id: !badge_id }
                 });
             }
 
-            // Check if application exists
+            // Check if a submission already exists
             const [existing] = await pool.query(
                 "SELECT id FROM badge_submissions WHERE scout_id = ? AND badge_id = ?",
                 [scout_id, badge_id]
             );
 
             if (existing.length === 0) {
+                // NEW: status is LEADER_PENDING — goes to leader first
                 await pool.query(
-                    `INSERT INTO badge_submissions (scout_id, badge_id, evidence_summary, status, submitted_at) 
-                     VALUES (?, ?, ?, 'PENDING', NOW())`,
+                    `INSERT INTO badge_submissions (scout_id, badge_id, evidence_summary, status, submitted_at)
+                     VALUES (?, ?, ?, 'LEADER_PENDING', NOW())`,
                     [scout_id, badge_id, notes || '']
                 );
             } else {
+                // Re-submission after a rejection also starts at LEADER_PENDING
                 await pool.query(
-                    "UPDATE badge_submissions SET status = 'PENDING', evidence_summary = ?, submitted_at = NOW() WHERE id = ?",
+                    "UPDATE badge_submissions SET status = 'LEADER_PENDING', evidence_summary = ?, submitted_at = NOW() WHERE id = ?",
                     [notes || '', existing[0].id]
                 );
             }
 
-            // Sync with scout_badge_progress so frontend shows 'PENDING' status
+            // Sync scout_badge_progress so the frontend shows 'PENDING' stage
             const [progExist] = await pool.query(
                 "SELECT id FROM scout_badge_progress WHERE scout_id = ? AND badge_id = ?",
                 [scout_id, badge_id]
@@ -127,38 +130,47 @@ const BadgeController = {
                 );
             }
 
-            // Fetch scout and badge info for email
+            // Fetch scout and badge info for notifications
             const [details] = await pool.query(
-                `SELECT u.email, u.full_name as scout_name, b.badge_name 
-                 FROM scouts s 
-                 JOIN users u ON s.user_id = u.id 
-                 JOIN badges b ON b.id = ? 
-                 WHERE s.id = ?`,
+                `SELECT u.email, u.full_name as scout_name, b.badge_name,
+                        sl.user_id as leader_user_id,
+                        lu.email as leader_email, lu.full_name as leader_name
+                 FROM scouts s
+                 JOIN users u ON s.user_id = u.id
+                 JOIN badges b ON b.id = ?
+                 LEFT JOIN scout_leaders sl ON sl.scout_group_id = s.scout_group_id
+                 LEFT JOIN users lu ON lu.id = sl.user_id
+                 WHERE s.id = ?
+                 LIMIT 1`,
                 [badge_id, scout_id]
             );
 
             if (details.length > 0) {
                 const notificationEmitter = require('../events/notification.events');
+
+                // Notify the LEADER (not the examiner) that a submission is waiting
                 notificationEmitter.emit('badge_submitted', {
-                    userEmail: details[0].email,
+                    userEmail: details[0].leader_email || details[0].email,
                     scoutName: details[0].scout_name,
-                    badgeName: details[0].badge_name
+                    badgeName: details[0].badge_name,
+                    recipientName: details[0].leader_name || 'Leader'
                 });
-                
-                // 🔔 Real-time emit to globally trigger dashboard fetches
+
+                // Real-time: emit to leader's room only
                 const io = req.app.io;
                 if (io) {
-                    io.emit('badge:submission:new', {
+                    io.to('leader').emit('badge:leader_review_needed', {
                         scout_id,
                         badgeName: details[0].badge_name,
-                        message: 'A scout applied for a badge review'
+                        scoutName: details[0].scout_name,
+                        message: 'A scout has submitted badge evidence for your review'
                     });
                 }
             }
 
             res.status(200).json({
                 success: true,
-                message: "Badge application submitted successfully! An examiner will review it soon."
+                message: "Badge application submitted! Your leader will review it first before it reaches the examiner."
             });
         } catch (err) {
             console.error("❌ SUBMIT BADGE ERROR:", err.message);
@@ -175,7 +187,7 @@ const BadgeController = {
 
             res.status(200).json(badges.map(b => ({
                 ...b,
-                name: b.badge_name // compatibility
+                name: b.badge_name
             })));
         } catch (err) {
             console.error("❌ GET ALL BADGES ERROR:", err.message);

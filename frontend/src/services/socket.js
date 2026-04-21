@@ -13,7 +13,7 @@ export function getSocket() {
     if (!socket) {
         socket = io(SOCKET_URL, {
             transports: ['websocket'],
-            autoConnect: false,
+            autoConnect: true,
         });
     }
     return socket;

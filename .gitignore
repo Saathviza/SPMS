@@ -4,11 +4,93 @@ npm-debug.log*
 
 # env
 .env
+.env.local
+.env.production
 
 # build
 build/
 dist/
+frontend/build/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# logs
+*.log
+logs/
+
+# output/debug text files
+*.txt
+
+# scratch/debug scripts
+backend/scratch/
+backend/tmp/
+backend/uploads/
+
+# debug scripts
+backend/BRUTE_FORCE*
+backend/EMERGENCY*
+backend/MASTER_*
+backend/FINAL_*
+backend/CHECK_*
+backend/SYNC_*
+backend/DIAGNOSE*
+backend/RECOVER*
+backend/TRACE_*
+backend/TEST_*
+backend/SCALE_*
+backend/GLUE_*
+backend/FIND_*
+backend/FIX_*
+backend/DASHBOARD_*
+backend/SUBMIT_*
+backend/SERVER_*
+backend/SCHEMA_*
+backend/DB_*
+backend/DESC_*
+
+# remaining debug scripts
+backend/audit_*
+backend/calibrate_*
+backend/clean_*
+backend/cleanup_*
+backend/debug_*
+backend/deep_*
+backend/describe_*
+backend/diag*
+backend/dump_*
+backend/ensure_*
+backend/extract_*
+backend/fetch_*
+backend/force_*
+backend/forced_*
+backend/hardened_*
+backend/inject_*
+backend/list_*
+backend/neutralize_*
+backend/prep_*
+backend/remove_*
+backend/repair_*
+backend/reset_*
+backend/restore_*
+backend/robust_*
+backend/seed_*
+backend/simple_*
+backend/sql_*
+backend/super_*
+backend/table_audit*
+backend/total_*
+backend/ultimate_*
+backend/upgrade_*
+backend/verify_*
+backend/src/db_check.js
+backend/EXAMINER_FIX_ULTIMATE.js
+backend/add_missing_cols.js
+backend/sync_*
+backend/check_db*
+backend/check_schema*
+backend/check_badge*
+backend/check_handoff*
+backend/check_scouts*
+backend/check_status*

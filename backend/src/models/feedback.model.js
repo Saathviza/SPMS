@@ -15,12 +15,11 @@ const Feedback = {
     },
 
     getByTarget: async (targetType, targetId) => {
-        // Switch to LEFT JOIN to prevent crashes if role metadata is messy
+        // Fix: Use u.role directly from users table (ENUM) instead of joining with non-existent roles table
         const query = `
-            SELECT f.*, u.full_name as author_name, COALESCE(r.role_name, 'TEAM') as author_role 
+            SELECT f.*, u.full_name as author_name, u.role as author_role 
             FROM feedback f 
             LEFT JOIN users u ON f.author_id = u.id 
-            LEFT JOIN roles r ON u.role_id = r.id
             WHERE f.target_type = ? AND f.target_id = ? 
             ORDER BY f.created_at ASC
         `;

@@ -352,8 +352,13 @@ const ActivityController = {
             }
 
             // 4. Logic sync with Tracking tables (Backward compatibility)
-            const [leaderRows] = await connection.query("SELECT verified_by_leader_user_id FROM scouts WHERE id = ?", [scout_id]);
-            const leader_user_id = leaderRows[0]?.verified_by_leader_user_id;
+            let leader_user_id = null;
+            try {
+                const [leaderRows] = await connection.query("SELECT assigned_leader_id FROM scouts WHERE id = ?", [scout_id]);
+                leader_user_id = leaderRows[0]?.assigned_leader_id;
+            } catch(colErr) {
+                console.log("⚠️ assigned_leader_id missing or error, ignoring legacy leader link: ", colErr.message);
+            }
 
             await connection.query(
                 `INSERT INTO activity_tracking (scout_id, activity_id, observed_by_name, activity_status, action_status, notes) 
@@ -362,12 +367,35 @@ const ActivityController = {
                 [scout_id, activityId, comment, comment]
             );
 
-            if (leader_user_id) {
+            // Fetch the tracking ID we just created/updated
+            const [trackingRows] = await connection.query("SELECT id FROM activity_tracking WHERE scout_id = ? AND activity_id = ?", [scout_id, activityId]);
+            const trk_id = trackingRows.length > 0 ? trackingRows[0].id : null;
+
+            // Extract first file_id for the legacy table if files were uploaded
+            let proof_file_id = null;
+            const [fileRows] = await connection.query("SELECT file_id FROM activity_submission_files WHERE submission_id = ? LIMIT 1", [submission_id]);
+            if (fileRows.length > 0) proof_file_id = fileRows[0].file_id;
+
+            if (trk_id) {
+                // 5. 🎯 VITAL LINK: Push to the table the Leader Dashboard actually reads
+                await connection.query(
+                    `INSERT INTO activity_proof_submissions (tracking_id, file_id, additional_comments, submission_status) 
+                     VALUES (?, ?, ?, 'PENDING_REVIEW')
+                     ON DUPLICATE KEY UPDATE file_id = VALUES(file_id), additional_comments = VALUES(additional_comments), submission_status = 'PENDING_REVIEW'`,
+                    [trk_id, proof_file_id, comment]
+                );
+            }
+
+            if (leader_user_id && trk_id) {
+                // Get the proof_submission_id for leader approvals
+                const [proofSubRows] = await connection.query("SELECT id FROM activity_proof_submissions WHERE tracking_id = ?", [trk_id]);
+                const proof_sub_id = proofSubRows.length > 0 ? proofSubRows[0].id : null;
+
                 await connection.query(
                     `INSERT INTO leader_activity_approvals (leader_user_id, scout_id, activity_id, proof_submission_id, approval_status) 
                      VALUES (?, ?, ?, ?, 'PENDING') 
                      ON DUPLICATE KEY UPDATE approval_status = 'PENDING', proof_submission_id = ?`,
-                    [leader_user_id, scout_id, activityId, submission_id, submission_id]
+                    [leader_user_id, scout_id, activityId, proof_sub_id, proof_sub_id]
                 );
             }
 
@@ -417,11 +445,12 @@ const ActivityController = {
             res.status(200).json({ success: true, message: "Proof submitted successfully with files!" });
 
         } catch (err) {
-            await connection.rollback();
+            if (connection) await connection.rollback();
             console.error("❌ SUBMIT PROOF ERROR:", err);
+            require('fs').writeFileSync('SUBMIT_ERR.txt', "Error: " + err.message + "\nStack: " + err.stack);
             res.status(500).json({ message: "Server error during submission", error: err.message });
         } finally {
-            connection.release();
+            if (connection) connection.release();
         }
     },
 

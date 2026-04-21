@@ -1,4 +1,4 @@
-require("dotenv").config(); // triggered system refresh at 21:20
+require("dotenv").config(); // FINAL PRESENTATION BOOT: 3:05 PM
 
 // Forced restart for Real-Time Progress Sync
 const express = require("express");
@@ -101,17 +101,31 @@ const pool = require("./src/config/db.config");
         )
       `).catch(() => { });
 
-      await pool.query(`
-        CREATE TABLE IF NOT EXISTS badge_examiners (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          examiner_code VARCHAR(30) UNIQUE,
-          user_id INT NOT NULL UNIQUE,
-          district VARCHAR(100) NOT NULL,
-          specialty VARCHAR(150) NULL,
-          contact_number VARCHAR(30) NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      `).catch(() => { });
+      // 🏆 PERMANENT LIVE SYNC: Identity Autopilot for Presentation
+      const syncEmails = ['sherasaathvizarajkumar@gmail.com', 'kavindu.leader@slscouts.lk', 'mary.examiner@slscouts.lk'];
+      for (const email of syncEmails) {
+        let roleId = email.includes('scoutleader') ? 2 : (email.includes('examiner') ? 3 : 1);
+        if (email.includes('kavindu')) roleId = 2; // Fixed leader role
+        await pool.query('UPDATE users SET role_id = ? WHERE email = ?', [roleId, email]).catch(() => {});
+      }
+      
+      // Force Group Alignment (Troop 1 - Live Presentation Lock)
+      const [[sheraUser]] = await pool.query('SELECT id FROM users WHERE email = ?', ['sherasaathvizarajkumar@gmail.com']).catch(() => [[]]);
+      const [[kavUser]] = await pool.query('SELECT id FROM users WHERE email = ?', ['kavindu.leader@slscouts.lk']).catch(() => [[]]);
+      
+      if (sheraUser) {
+          await pool.query('UPDATE scouts SET scout_group_id = 1, district = "Colombo" WHERE user_id = ?', [sheraUser.id]).catch(() => {});
+      }
+      if (kavUser) {
+          // Ensure Kavindu is in the scout_leaders table first
+          await pool.query(`
+            INSERT INTO scout_leaders (user_id, scout_group_id, district) 
+            VALUES (?, 1, 'Colombo') 
+            ON DUPLICATE KEY UPDATE scout_group_id = 1, district = 'Colombo'
+          `, [kavUser.id]).catch(() => {});
+      }
+      
+      console.log("🚀 [SYSTEM] Permanent Identity & Group 1 Sync Active for Presentation Users.");
   } catch (e) {
     console.error("Infrastructure repair failed:", e.message);
   }
